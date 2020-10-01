@@ -1,15 +1,24 @@
 import redis, { RedisClient } from 'redis'
+import { sendEmail } from './util/mailer.welcome'
 
 export class Service
 {
   private config : {
     port : number,
     host : string
+    mailer : {
+      user : string,
+      password : string
+    }
   }
   
   constructor(config : {
     port : number,
-    host : string
+    host : string,
+    mailer : {
+      user : string,
+      password : string
+    }
   }) {
     this.config = config;
   }
@@ -23,7 +32,8 @@ export class Service
 
     redisClient.subscribe('create.user')
 
-    redisClient.on('message', function(channel, message){
+    redisClient.on('message', (channel, message) => {
+      sendEmail(this.config.mailer, message);
       // process message
       // send email
     });
